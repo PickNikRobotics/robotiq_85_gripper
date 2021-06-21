@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="tool_changer" params="prefix connected_to rotation:=^|0">
+  <xacro:macro name="tool_changer" params="prefix connected_to rotation:=^|${pi/2.0}">
 
     <joint name="${prefix}tool_changer_joint" type="fixed">
       <!-- The parent link must be read from the robot model it is attached to. -->

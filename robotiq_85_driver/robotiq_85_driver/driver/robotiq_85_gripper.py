@@ -30,33 +30,23 @@ class Robotiq85Gripper:
             return False
         try:
             self.ser.write(self._gripper[dev].act_cmd_bytes)
-            #rclpy.loginfo('Act Cmd')
-            #rclpy.loginfo(self._gripper[dev].act_cmd)
             rsp = self.ser.read(8)
             rsp = [int(x) for x in rsp]
-            #rclpy.loginfo(rsp)
             if (len(rsp) != 8):
-                #rclpy.logerr('Act Length is ' + str(len(rsp)))
                 return False
             return verify_modbus_rtu_crc(rsp)
         except:
-            #rclpy.logerr(sys.exc_info()[0])
             return False
 
     def process_stat_cmd(self,dev=0):
         try:
             self.ser.write(self._gripper[dev].stat_cmd_bytes)
-            #rclpy.loginfo('Stat Cmd')
-            #rclpy.loginfo(self._gripper[dev].stat_cmd)
             rsp = self.ser.read(21)
             rsp = [int(x) for x in rsp]
-            #rclpy.loginfo(rsp)
             if (len(rsp) != 21):
-                #rclpy.logerr('Stat Length is ' + str(len(rsp)))
                 return False
             return self._gripper[dev].parse_rsp(rsp)
         except:
-            #rclpy.logerr(sys.exc_info()[0])
             return False
 
     def activate_gripper(self,dev=0):

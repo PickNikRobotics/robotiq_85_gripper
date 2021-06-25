@@ -77,7 +77,7 @@ class Robotiq85ActionServer(Node):
         self._action_server = ActionServer(
             self,
             GripperCommand,
-            '/gripper/gripper_action',
+            '/robotiq_gripper_controller/gripper_cmd',
             goal_callback=self._goal_callback,
             cancel_callback=self._cancel_callback,
             execute_callback=self._execute_callback,
@@ -115,16 +115,19 @@ class Robotiq85ActionServer(Node):
     def _execute_callback(self, goal_handle):
         self.get_logger().info('Gripper executing goal...')
 
+        # Approximately convert angular joint position at knuckle to linear distance between jaws
+        gripper_jaw_distance = min(max(0.085 - (0.085/0.8) * goal_handle.request.command.position, 0.0), 0.8)
+        self.get_logger().info('Angle: ' + str(goal_handle.request.command.position))
+        self.get_logger().info('Distance: ' + str(gripper_jaw_distance))
+
         # Send goal to gripper 
         cmd_msg = GripperCmd()
-        cmd_msg.position = goal_handle.request.command.position
+        cmd_msg.position = gripper_jaw_distance
+
         cmd_msg.force = goal_handle.request.command.max_effort
         cmd_msg.speed = self._gripper_speed
 
         self._gripper_pub.publish(cmd_msg)
-
-        thread = threading.Thread(target=rclpy.spin, args=(self, ), daemon=True)
-        thread.start()
 
         feedback_msg = GripperCommand.Feedback()
         result_msg = GripperCommand.Result()
@@ -145,26 +148,36 @@ class Robotiq85ActionServer(Node):
 
             if self._stat is None:
                 self.get_logger().warn("No gripper feedback yet")
+                pass
             else:
                 feedback_msg.position = self._stat.position
                 feedback_msg.stalled = not self._stat.is_moving
 
                 # Position tolerance achieved or object grasped
-                if (fabs(goal_handle.request.command.position - feedback_msg.position) < self._position_tolerance or self._stat.obj_detected):
+                if (fabs(gripper_jaw_distance - feedback_msg.position) < self._position_tolerance or self._stat.obj_detected):
                     feedback_msg.reached_goal = True
                     self.get_logger().info('Goal achieved: %r'% feedback_msg.reached_goal)
 
                 goal_handle.publish_feedback(feedback_msg)
 
                 if feedback_msg.reached_goal:
-                    goal_handle.succeed()
+                    self.get_logger().debug('Reached goal, exiting loop')
                     break;
   
             rate.sleep()
 
-        thread.join()
+        self.get_logger().debug('Returning result')
+
         result_msg = feedback_msg
-        return result
+
+        if result_msg.reached_goal:
+            self.get_logger().debug('Setting action to succeeded')
+            goal_handle.succeed()
+        else:
+            self.get_logger().debug('Setting action to abort')
+            goal_handle.abort()
+
+        return result_msg
 
 
     def _update_gripper_stat(self, data):

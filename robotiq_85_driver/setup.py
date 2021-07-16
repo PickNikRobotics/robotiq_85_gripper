@@ -3,11 +3,12 @@ from glob import glob
 from setuptools import setup
 
 package_name = 'robotiq_85_driver'
+package_subdirectory = 'robotiq_85_driver/driver'
 
 setup(
     name=package_name,
     version='1.0.0',
-    packages=[package_name],
+    packages=[package_name, package_subdirectory],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),

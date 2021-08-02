@@ -11,7 +11,7 @@
     <exec_depend>rclpy</exec_depend>
     <exec_depend>robotiq_85_msgs</exec_depend>
     <exec_depend>sensor_msgs</exec_depend>
-    <exec_depend>pyserial</exec_depend>
+    <exec_depend>python3-serial</exec_depend>
 
     <test_depend>ament_copyright</test_depend>
     <test_depend>ament_flake8</test_depend>

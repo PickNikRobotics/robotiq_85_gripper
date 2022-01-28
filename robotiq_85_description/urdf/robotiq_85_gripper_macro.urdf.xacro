@@ -8,11 +8,11 @@
     prefix
     parent
     *origin
+    use_ros2_control:=false
     use_fake_hardware:=false
     fake_sensor_commands:=false
-    gazebo_sim:=false
-    ignition_sim:=false
-    use_ros2_control:=false">
+    sim_gazebo:=false
+    sim_ignition:=false">
 
     <!-- The current hardware driver does not depend on ros2_control but we do utilize
     it for simulating the gripper in Gazebo. Enabling this on hardware causes the
@@ -335,10 +335,10 @@
     <!-- NOTE - currently using "system" because it is only supported hardware_interface-type by Gazebo and Ignition -->
     <ros2_control name="${name}" type="system">
       <hardware>
-        <xacro:if value="${gazebo_sim}">
+        <xacro:if value="${sim_gazebo}">
           <plugin>gazebo_ros2_control/GazeboSystem</plugin>
         </xacro:if>
-        <xacro:if value="${ignition_sim}">
+        <xacro:if value="${sim_ignition}">
           <plugin>ignition_ros2_control/IgnitionSystem</plugin>
         </xacro:if>
         <xacro:if value="${use_fake_hardware}">
@@ -346,7 +346,7 @@
           <param name="fake_sensor_commands">${fake_sensor_commands}</param>
           <param name="state_following_offset">0.0</param>
         </xacro:if>
-        <xacro:unless value="${use_fake_hardware or gazebo_sim or ignition_sim}">
+        <xacro:unless value="${use_fake_hardware or sim_gazebo or sim_ignition}">
           <plugin>robotiq_hardware_interface/NOT_IMPLEMENTED_YET</plugin>
           <param name="ADD_GRIPPER_RELEVANT_PARAMETERS">654321</param>
         </xacro:unless>

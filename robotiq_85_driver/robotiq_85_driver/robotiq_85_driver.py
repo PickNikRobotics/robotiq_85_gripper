@@ -64,9 +64,6 @@ class Robotiq85Driver(Node):
     def __init__(self):
         super().__init__('robotiq_85_driver')
 
-        # put a leep so it can connect to the force/torque sensor first
-        time.sleep(5.0)
-
         self.declare_parameter('num_grippers', 1)
         self.declare_parameter('comport', '/dev/ttyUSB0')
         self.declare_parameter('baud', '115200')

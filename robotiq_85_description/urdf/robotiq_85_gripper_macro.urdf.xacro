@@ -22,6 +22,11 @@
 	</xacro:macro>
 
 	<xacro:macro name="robotiq_85_gripper" params="prefix parent *origin">
+		
+		<!-- ros2 control include -->
+		<xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.ros2_control.xacro"/>
+		<!-- ros2 control instance -->
+		<xacro:robotiq_85_gripper_ros2_control name="RobotiqGripperSystem"/>
 
 		<joint name="${prefix}robotiq_85_base_joint" type="fixed">
 			<parent link="${parent}"/>

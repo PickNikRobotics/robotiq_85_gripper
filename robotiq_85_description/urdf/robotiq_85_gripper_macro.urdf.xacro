@@ -23,6 +23,10 @@
 
 	<xacro:macro name="robotiq_85_gripper" params="prefix parent *origin sim:=false">
 		
+		<!-- The current hardware driver does not depend on ros2_control but we do utilize
+				 it for simulating the gripper in Gazebo. Enabling this on hardware causes the
+				 JointStateBroadcaster to publish values for all joints including ones that are
+				 mimic'd which is causing issues on systems consuming the joint_state data. -->
 		<xacro:if value="${sim}">
 			<!-- ros2 control include -->
 			<xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.ros2_control.xacro"/>

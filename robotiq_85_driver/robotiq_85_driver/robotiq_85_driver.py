@@ -47,13 +47,13 @@ arising out of or based upon:
 
  \Platform: Linux/ROS Foxy
 --------------------------------------------------------------------"""
-import time
+
 import numpy as np
+import sys
 
 import rclpy
 from rclpy.node import Node
-from rclpy.exceptions import ParameterNotDeclaredException
-from rcl_interfaces.msg import ParameterType
+from rclpy.executors import ExternalShutdownException
 
 from robotiq_85_driver.driver.robotiq_85_gripper import Robotiq85Gripper
 from robotiq_85_msgs.msg import GripperCmd, GripperStat
@@ -114,6 +114,8 @@ class Robotiq85Driver(Node):
         # # 100 Hz timer 
         self.timer = self.create_timer(0.01, self._timer_callback)
 
+    def __del__(self):
+        self.shutdown()
 
     def get_time(self):
         time_msg = self.get_clock().now().to_msg()
@@ -239,12 +241,16 @@ class Robotiq85Driver(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    driver = Robotiq85Driver()
-    rclpy.spin(driver)
-
-    driver.shutdown()
-    driver.destroy_node()
-    rclpy.shutdown()
+    try:
+        node = Robotiq85Driver()
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    except ExternalShutdownException:
+        sys.exit(1)
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
 
 
 if __name__ == "__main__":

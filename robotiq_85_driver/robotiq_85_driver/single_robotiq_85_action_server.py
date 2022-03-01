@@ -42,12 +42,14 @@ import threading
 import time
 import numpy as np
 from math import fabs
+import sys
 
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
-from rclpy.executors import MultiThreadedExecutor
+from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
+
 from rclpy.exceptions import ParameterNotDeclaredException
 from rcl_interfaces.msg import ParameterType
 
@@ -188,13 +190,19 @@ class Robotiq85ActionServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
-    action_server = Robotiq85ActionServer()
-
-    executor = MultiThreadedExecutor()
-    rclpy.spin(action_server, executor=executor)
-    action_server.shutdown()
-    rclpy.shutdown()
+    try:
+        node = Robotiq85ActionServer()
+        executor = MultiThreadedExecutor()
+        executor.add_node(node)
+        executor.spin()
+    except KeyboardInterrupt:
+        pass
+    except ExternalShutdownException:
+        sys.exit(1)
+    finally:
+        executor.shutdown()
+        node.destroy_node()
+        rclpy.try_shutdown()
 
 
 if __name__ == "__main__":

@@ -2,27 +2,32 @@
 <robot name="robotiq_85_gripper" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.transmission.xacro" />
+  <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.ros2_control.xacro"/>
 
   <xacro:macro name="robotiq_85_gripper" params="
     name
     prefix
     parent
     *origin
-    use_ros2_control:=false
     use_fake_hardware:=false
     fake_sensor_commands:=false
     sim_gazebo:=false
     sim_ignition:=false">
 
     <!-- The current hardware driver does not depend on ros2_control but we do utilize
-    it for simulating the gripper in Gazebo. Enabling this on hardware causes the
-    JointStateBroadcaster to publish values for all joints including ones that are
-    mimic'd which is causing issues on systems consuming the joint_state data. -->
-    <xacro:if value="${use_ros2_control}">
-      <!-- ros2 control include -->
-      <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.ros2_control.xacro"/>
+    it for simulating the gripper with FakeSystem, Gazebo and  Igntion. Enabling this on
+    hardware causes the JointStateBroadcaster to publish values for all joints including
+    ones that are mimic'd which is causing issues on systems consuming the joint_state data. -->
+    <xacro:if value="${use_fake_hardware or sim_gazebo or sim_ignition}">
       <!-- ros2 control instance -->
-      <xacro:robotiq_85_gripper_ros2_control name="RobotiqGripperSystem"/>
+      <xacro:robotiq_85_gripper_ros2_control
+        name="${name}"
+        prefix="${prefix}"
+        use_fake_hardware="${use_fake_hardware}"
+        fake_sensor_commands="${fake_sensor_commands}"
+        sim_gazebo="${sim_gazebo}"
+        sim_ignition="${sim_ignition}"
+        />
     </xacro:if>
 
     <joint name="${prefix}robotiq_85_base_joint" type="fixed">
@@ -329,141 +334,6 @@
       <material>Gazebo/Grey</material>
     </gazebo>-->
     <xacro:robotiq_85_gripper_transmission prefix="${prefix}" />
-
-
-    <!-- ros2_control part -->
-    <!-- NOTE - currently using "system" because it is only supported hardware_interface-type by Gazebo and Ignition -->
-    <ros2_control name="${name}" type="system">
-      <hardware>
-        <xacro:if value="${sim_gazebo}">
-          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-        </xacro:if>
-        <xacro:if value="${sim_ignition}">
-          <plugin>ignition_ros2_control/IgnitionSystem</plugin>
-        </xacro:if>
-        <xacro:if value="${use_fake_hardware}">
-          <plugin>fake_components/GenericSystem</plugin>
-          <param name="fake_sensor_commands">${fake_sensor_commands}</param>
-          <param name="state_following_offset">0.0</param>
-        </xacro:if>
-        <xacro:unless value="${use_fake_hardware or sim_gazebo or sim_ignition}">
-          <plugin>robotiq_hardware_interface/NOT_IMPLEMENTED_YET</plugin>
-          <param name="ADD_GRIPPER_RELEVANT_PARAMETERS">654321</param>
-        </xacro:unless>
-      </hardware>
-      <joint name="${prefix}robotiq_85_left_knuckle_joint">
-        <command_interface name="position">
-          <param name="min">0.0</param>
-          <param name="max">0.085</param>
-        </command_interface>
-        <command_interface name="velocity">
-          <param name="min">0.013</param>
-          <param name="max">0.1</param>
-        </command_interface>
-        <command_interface name="force">
-          <param name="min">5.0</param>
-          <param name="max">220.0</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="force"/>
-      </joint>
-      <joint name="${prefix}robotiq_85_right_knuckle_joint">
-        <param name="mimic">${prefix}robotiq_85_left_knuckle_joint</param>
-        <param name="multiplier">1</param>
-        <command_interface name="position">
-          <param name="min">0.0</param>
-          <param name="max">0.085</param>
-        </command_interface>
-        <command_interface name="velocity">
-          <param name="min">0.013</param>
-          <param name="max">0.1</param>
-        </command_interface>
-        <command_interface name="force">
-          <param name="min">5.0</param>
-          <param name="max">220.0</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="force"/>
-      </joint>
-      <joint name="${prefix}robotiq_85_left_inner_knuckle_joint">
-        <param name="mimic">${prefix}robotiq_85_left_knuckle_joint</param>
-        <param name="multiplier">1</param>
-        <command_interface name="position">
-          <param name="min">0.0</param>
-          <param name="max">0.085</param>
-        </command_interface>
-        <command_interface name="velocity">
-          <param name="min">0.013</param>
-          <param name="max">0.1</param>
-        </command_interface>
-        <command_interface name="force">
-          <param name="min">5.0</param>
-          <param name="max">220.0</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="force"/>
-      </joint>
-      <joint name="${prefix}robotiq_85_right_inner_knuckle_joint">
-        <param name="mimic">${prefix}robotiq_85_left_knuckle_joint</param>
-        <param name="multiplier">1</param>
-        <command_interface name="position">
-          <param name="min">0.0</param>
-          <param name="max">0.085</param>
-        </command_interface>
-        <command_interface name="velocity">
-          <param name="min">0.013</param>
-          <param name="max">0.1</param>
-        </command_interface>
-        <command_interface name="force">
-          <param name="min">5.0</param>
-          <param name="max">220.0</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="force"/>
-      </joint>
-      <joint name="${prefix}robotiq_85_left_finger_tip_joint">
-        <param name="mimic">${prefix}robotiq_85_left_knuckle_joint</param>
-        <param name="multiplier">-1</param>
-        <command_interface name="position">
-          <param name="min">0.0</param>
-          <param name="max">0.085</param>
-        </command_interface>
-        <command_interface name="velocity">
-          <param name="min">0.013</param>
-          <param name="max">0.1</param>
-        </command_interface>
-        <command_interface name="force">
-          <param name="min">5.0</param>
-          <param name="max">220.0</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="force"/>
-      </joint>
-      <joint name="${prefix}robotiq_85_right_finger_tip_joint">
-        <param name="mimic">${prefix}robotiq_85_left_knuckle_joint</param>
-        <param name="multiplier">-1</param>
-        <command_interface name="position">
-          <param name="min">0.0</param>
-          <param name="max">0.085</param>
-        </command_interface>
-        <command_interface name="velocity">
-          <param name="min">0.013</param>
-          <param name="max">0.1</param>
-        </command_interface>
-        <command_interface name="force">
-          <param name="min">5.0</param>
-          <param name="max">220.0</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="force"/>
-      </joint>
-    </ros2_control>
 
   </xacro:macro>
 </robot>

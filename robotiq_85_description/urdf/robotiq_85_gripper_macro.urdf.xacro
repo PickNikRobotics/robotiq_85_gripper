@@ -37,16 +37,20 @@
     </joint>
 
     <link name="${prefix}robotiq_85_base_link">
-      <!-- Visual aid for grasping -->
-      <visual>
-        <origin xyz="0.16 0 0" rpy="0 0 0" />
-        <geometry>
-          <sphere radius="0.007"/>
-        </geometry>
-        <material name="">
-          <color rgba="0 1.0 0 1.0"/>
-        </material>
-      </visual>
+
+      <xacro:unless value="${sim_ignition}">
+        <!-- Visual aid for grasping -->
+        <visual>
+          <origin xyz="0.16 0 0" rpy="0 0 0" />
+          <geometry>
+            <sphere radius="0.007"/>
+          </geometry>
+          <material name="">
+            <color rgba="0 1.0 0 1.0"/>
+          </material>
+        </visual>
+      </xacro:unless>
+
       <!-- Gripper body -->
       <visual>
         <geometry>

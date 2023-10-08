@@ -13,13 +13,13 @@
         <visual>
           <origin xyz="0 0 0" rpy="0 0 0" />
           <geometry>
-            <mesh filename="package://robotiq_85_description/meshes/visual/ur_to_robotiq_adapter.dae"/>
+            <mesh filename="file://$(find robotiq_85_description)/meshes/visual/ur_to_robotiq_adapter.dae"/>
           </geometry>
         </visual>
         <collision>
           <origin xyz="0 0 0" rpy="0 0 0"/>
           <geometry>
-            <mesh filename="package://robotiq_85_description/meshes/collision/ur_to_robotiq_adapter.stl"/>
+            <mesh filename="file://$(find robotiq_85_description)/meshes/collision/ur_to_robotiq_adapter.stl"/>
           </geometry>
         </collision>
         <inertial>

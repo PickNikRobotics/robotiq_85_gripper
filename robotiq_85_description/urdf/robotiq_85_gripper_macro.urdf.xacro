@@ -9,24 +9,24 @@
     prefix
     parent
     *origin
-    use_fake_hardware:=false
-    fake_sensor_commands:=false
-    sim_gazebo:=false
-    sim_ignition:=false">
+    use_mock_hardware:=false
+    mock_sensor_commands:=false
+    sim_gazebo_classic:=false
+    sim_gazebo:=false">
 
     <!-- The current hardware driver does not depend on ros2_control but we do utilize
     it for simulating the gripper with FakeSystem, Gazebo and  Igntion. Enabling this on
     hardware causes the JointStateBroadcaster to publish values for all joints including
     ones that are mimic'd which is causing issues on systems consuming the joint_state data. -->
-    <xacro:if value="${use_fake_hardware or sim_gazebo or sim_ignition}">
+    <xacro:if value="${use_mock_hardware or sim_gazebo_classic or sim_gazebo}">
       <!-- ros2 control instance -->
       <xacro:robotiq_85_gripper_ros2_control
         name="${name}"
         prefix="${prefix}"
-        use_fake_hardware="${use_fake_hardware}"
-        fake_sensor_commands="${fake_sensor_commands}"
+        use_mock_hardware="${use_mock_hardware}"
+        mock_sensor_commands="${mock_sensor_commands}"
+        sim_gazebo_classic="${sim_gazebo_classic}"
         sim_gazebo="${sim_gazebo}"
-        sim_ignition="${sim_ignition}"
         />
     </xacro:if>
 
@@ -38,7 +38,7 @@
 
     <link name="${prefix}robotiq_85_base_link">
 
-      <xacro:unless value="${sim_ignition}">
+      <xacro:unless value="${sim_gazebo}">
         <!-- Visual aid for grasping -->
         <visual>
           <origin xyz="0.16 0 0" rpy="0 0 0" />
@@ -123,9 +123,9 @@
       <inertial>
         <mass value="0.018491" />
         <origin xyz="0.0 0.0 0.0" />
-        <inertia ixx = "0.000009" ixy = "-0.000001" ixz = "0.000000"
-          iyx = "-0.000001" iyy = "0.000001" iyz = "0.000000"
-          izx = "0.000000" izy = "0.000000" izz = "0.000010" />
+        <inertia ixx = "0.0009" ixy = "-0.0001" ixz = "0.000000"
+                 iyx = "-0.0001" iyy = "0.0001" iyz = "0.000000"
+                 izx = "0.000000" izy = "0.000000" izz = "0.0010" />
       </inertial>
     </link>
 
@@ -143,9 +143,9 @@
       <inertial>
         <mass value="0.018491" />
         <origin xyz="0.0 0.0 0.0" />
-        <inertia ixx = "0.000009" ixy = "-0.000001" ixz = "0.000000"
-          iyx = "-0.000001" iyy = "0.000001" iyz = "0.000000"
-          izx = "0.000000" izy = "0.000000" izz = "0.000010" />
+        <inertia ixx = "0.0009" ixy = "-0.0001" ixz = "0.000000"
+                 iyx = "-0.0001" iyy = "0.0001" iyz = "0.000000"
+                 izx = "0.000000" izy = "0.000000" izz = "0.0010" />
       </inertial>
     </link>
 
